@@ -1,304 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRAS Final Exam Study Tool</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #game {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        #question-counter {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        #question {
+            font-size: 1.3em;
+            color: #444;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            display: inline-block;
+            font-size: 1em;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #score {
+            font-size: 1.2em;
+            margin-top: 20px;
+            color: #555;
+        }
+
+        #choices button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 10px;
+            background-color: #007BFF;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        #choices button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-left: 4px solid #4CAF50;
+            display: none;
+        }
+
+        /* Style for the horizontal progress bar */
+        #overall-timer-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            margin-top: 20px;
+        }
+
+        #overall-timer-bar {
+            width: 100%;
+            height: 100%;
+            background-color: #4CAF50;
+        }
+
+        @media screen and (max-width: 600px) {
+            #game {
+                padding: 15px;
+                margin: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            button {
+                font-size: 0.9em;
+                padding: 8px 15px;
+            }
+
+            #question {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>CRAS Final Exam Study Tool</h1>
+        <div id="question-counter"></div> <!-- Question counter (e.g., 1/50, 2/50, etc.) -->
+        <div id="question"></div>
+        <div id="choices"></div>
+        <div id="explanation"></div>
+        <button id="next-button" style="display: none;" onclick="nextScenario()">Next</button>
+
+        <!-- Horizontal progress bar for the overall timer -->
+        <div id="overall-timer-bar-container">
+            <div id="overall-timer-bar"></div>
+        </div>
+
+        <div id="score">Score: 0</div>
+        <button id="start-button" onclick="startGame()">Start Game</button> <!-- Start Game button -->
+    </div>
+
+    <script>
 const scenarios = [
     {
-        question: "What is signal flow in audio production?",
-        options: ["The order of plug-ins in a DAW", "The path an audio signal takes from source to output", "The wiring setup for a MIDI controller", "The way sound travels through a room"],
-        correct: 1,
-        explanation: "Signal flow is the path that an audio signal takes from the source to the output."
-    },
-    {
-        question: "Which microphone is most sensitive to high-frequency detail and is often used in studio recordings?",
-        options: ["Dynamic", "Condenser", "Ribbon", "Lavalier"],
-        correct: 1,
-        explanation: "Condenser microphones are more sensitive to high-frequency details and are commonly used in studios."
-    },
-    {
-        question: "What is the purpose of the large format console in a recording studio?",
-        options: ["To add effects to a recording", "To route and control multiple audio signals", "To serve as a sound interface for MIDI instruments", "To amplify the audio signal for live sound"],
-        correct: 1,
-        explanation: "Large format consoles are used to route and control multiple audio signals in a recording studio."
-    },
-    {
-        question: "Which of the following best describes dynamic range in audio production?",
-        options: ["The difference between the loudest and quietest sounds", "The amount of reverb applied to a signal", "The variation in frequencies captured by a microphone", "The distance between the microphone and sound source"],
+        question: "What is signal flow in a large format console?",
+        options: ["The routing of audio signals through various processing stages", "The arrangement of microphones in a studio", "The order of plugins used in a DAW", "The setup of live sound equipment"],
         correct: 0,
-        explanation: "Dynamic range refers to the difference between the loudest and quietest sounds in a recording."
+        explanation: "Signal flow refers to the path audio signals take through the various stages of an audio system, such as microphones, preamps, consoles, and outboard gear."
     },
     {
-        question: "What does the term 'overdubbing' refer to in audio production?",
-        options: ["Recording multiple instruments at once", "Adding a recording on top of an existing track", "Using multiple mics on one instrument", "Editing tracks in post-production"],
-        correct: 1,
-        explanation: "Overdubbing is the process of recording additional tracks on top of an existing recording."
-    },
-    {
-        question: "What is the purpose of automation in mixing?",
-        options: ["To automate microphone placement", "To allow for changes in volume, panning, and effects over time", "To automatically adjust EQ settings", "To automatically normalize audio levels"],
-        correct: 1,
-        explanation: "Automation allows for precise changes in volume, panning, and effects at specific points in a mix."
-    },
-    {
-        question: "What is the function of a compressor in audio processing?",
-        options: ["Boosts high frequencies", "Reduces dynamic range", "Adds reverb", "Increases volume"],
-        correct: 1,
-        explanation: "A compressor reduces the dynamic range of audio by attenuating loud sounds and amplifying quieter ones."
-    },
-    {
-        question: "What is latency in digital audio systems?",
-        options: ["Delay between input and output", "A type of distortion", "A reverb effect", "An EQ setting"],
-        correct: 0,
-        explanation: "Latency is the delay between the input and the output of a digital audio system."
-    },
-    {
-        question: "What is a pre-production session in audio recording?",
-        options: ["A rehearsal session before the final recording", "The initial setup of audio equipment", "A session to prepare arrangements and logistics before recording", "The testing of instruments before a show"],
-        correct: 2,
-        explanation: "Pre-production involves planning, arranging, and preparing the logistics for the recording session."
-    },
-    {
-        question: "What is phantom power typically used for?",
-        options: ["Powering dynamic microphones", "Powering condenser microphones", "Boosting signal gain", "Reducing noise"],
-        correct: 1,
-        explanation: "Phantom power is used to power condenser microphones, which require external power to operate."
-    },
-    {
-        question: "What is Pro Tools?",
-        options: ["An audio mixing console", "A type of microphone", "A digital audio workstation (DAW)", "A speaker monitor system"],
-        correct: 2,
-        explanation: "Pro Tools is a digital audio workstation (DAW) widely used for recording, editing, and mixing audio."
-    },
-    {
-        question: "Which console is introduced to students in the MP200 course?",
+        question: "Which console is introduced in the MP200 course at CRAS?",
         options: ["Yamaha CL5", "Solid State Logic 4000 E/G+", "API 1608", "Midas M32"],
         correct: 1,
-        explanation: "The Solid State Logic 4000 E/G+ is introduced in MP200 for pre-production, tracking, and mixing."
+        explanation: "Students are introduced to the Solid State Logic (SSL) 4000 E/G+ console in MP200 for advanced signal flow, tracking, and mixing sessions."
     },
     {
-        question: "Which software is used for surround sound and video game audio in the Multimedia Technologies course?",
-        options: ["Pro Tools", "Audiokinetic Wwise", "Ableton Live", "Adobe Audition"],
+        question: "What is the main purpose of automation in Pro Tools?",
+        options: ["To route audio signals", "To create time-based effects", "To adjust parameters like volume, pan, and effects automatically", "To record audio tracks"],
+        correct: 2,
+        explanation: "Automation in Pro Tools allows users to control and adjust parameters like volume, pan, and effects automatically over time."
+    },
+    {
+        question: "In live sound, what does FOH stand for?",
+        options: ["Front of House", "Front of Halls", "Frequency of Headroom", "Floor of Harmonics"],
+        correct: 0,
+        explanation: "FOH stands for Front of House, referring to the position where the sound engineer mixes the sound for the audience in live events."
+    },
+    {
+        question: "What type of console is introduced in the MP300 course for hybrid production?",
+        options: ["SSL AWS948", "Neve 88RS", "Avid S6", "Behringer X32"],
+        correct: 0,
+        explanation: "The SSL AWS948 console is introduced in MP300, which combines analog console functionality with digital Pro Tools integration."
+    },
+    {
+        question: "What is the primary function of an AUX send in live sound?",
+        options: ["To adjust the room acoustics", "To send audio to external effects or monitor speakers", "To boost the volume of the main mix", "To control the dynamics of the input channels"],
         correct: 1,
-        explanation: "Audiokinetic Wwise is used for surround sound and video game audio in Multimedia Technologies."
+        explanation: "An AUX send allows audio to be sent to external processors (like reverb or delay units) or monitor speakers, separate from the main mix."
     },
     {
-        question: "What is the main focus of the Audio Business courses (AB100 and AB200)?",
-        options: ["Recording techniques", "Live sound configuration", "Music industry knowledge and business practices", "Mastering techniques"],
-        correct: 2,
-        explanation: "The Audio Business courses focus on industry knowledge, including copyright law, contracts, and personal finance."
-    },
-    {
-        question: "What does MIDI stand for?",
-        options: ["Musical Instrument Digital Interface", "Modular Instrument Data Input", "Multi-Input Dynamic Integration", "Modulation Interface for Digital Instruments"],
+        question: "What is the Nyquist Theorem, important in digital audio recording?",
+        options: ["It states that the sample rate must be twice the highest frequency", "It sets the maximum bit depth of digital audio", "It defines how gain staging should be done", "It describes how phase cancellation occurs"],
         correct: 0,
-        explanation: "MIDI stands for Musical Instrument Digital Interface, a protocol that allows electronic instruments and computers to communicate."
+        explanation: "The Nyquist Theorem states that in order to avoid aliasing, the sampling rate must be at least twice the highest frequency to be captured."
     },
     {
-        question: "What is the primary use of a pop filter?",
-        options: ["To reduce wind noise outdoors", "To prevent plosive sounds from distorting the recording", "To add effects to vocals", "To balance the stereo field"],
+        question: "In live sound, what is the function of a crossover?",
+        options: ["To split an audio signal into multiple frequency ranges", "To boost the bass in a system", "To add reverb to a vocal channel", "To control the monitor levels on stage"],
+        correct: 0,
+        explanation: "A crossover splits the audio signal into different frequency ranges, sending them to the appropriate speakers like subwoofers or tweeters."
+    },
+    {
+        question: "What does phantom power provide for condenser microphones?",
+        options: ["An increase in signal strength", "A power supply to operate", "A balanced signal path", "Reduction of noise in the signal"],
         correct: 1,
-        explanation: "A pop filter reduces plosive sounds (like 'p' and 'b') from distorting the recording."
+        explanation: "Phantom power provides the necessary electrical power for condenser microphones, which need it to operate."
     },
     {
-        question: "Which of the following best describes clipping in audio production?",
-        options: ["Distortion caused by the signal exceeding the maximum level", "A type of reverb effect", "A method of boosting high frequencies", "A technique for editing audio"],
-        correct: 0,
-        explanation: "Clipping occurs when the signal exceeds the maximum level, causing distortion."
-    },
-    {
-        question: "What is the function of an audio limiter?",
-        options: ["Increase volume", "Decrease noise", "Prevent signal from exceeding a set threshold", "Add distortion"],
+        question: "What is dBFS a measurement of in digital audio?",
+        options: ["Dynamic range", "Frequency spectrum", "Full Scale decibels", "Low-end rolloff"],
         correct: 2,
-        explanation: "A limiter prevents an audio signal from exceeding a set threshold, thus protecting equipment and preventing distortion."
+        explanation: "dBFS stands for Decibels Full Scale, a unit of measurement for digital audio levels, where 0 dBFS is the maximum possible level."
     },
     {
-        question: "What is the purpose of a crossover in an audio system?",
-        options: ["Divides the audio signal into different frequency ranges for specific speakers", "Boosts the bass frequencies", "Controls the dynamic range", "Adds reverb to the mix"],
-        correct: 0,
-        explanation: "A crossover divides the audio signal into different frequency ranges so that each speaker (e.g., subwoofer, tweeter) receives the appropriate frequencies."
-    },
-    {
-        question: "Which mixing technique is commonly used to place audio signals across the stereo field?",
-        options: ["Automation", "EQ", "Panning", "Reverb"],
-        correct: 2,
-        explanation: "Panning is used to place audio signals across the stereo field, providing spatial separation."
-    },
-    {
-        question: "What is a typical use of a gate in audio processing?",
-        options: ["Reduce unwanted noise", "Boost signal strength", "Add delay", "Enhance bass frequencies"],
-        correct: 0,
-        explanation: "A gate reduces or eliminates unwanted noise by attenuating the signal below a certain threshold."
-    },
-    {
-        question: "In a live sound setup, what is the role of a front-of-house (FOH) engineer?",
-        options: ["Monitoring the on-stage mix", "Controlling the sound for the audience", "Setting up stage lighting", "Managing wireless frequencies"],
+        question: "Which skill is emphasized in the MP100 course for entry-level engineers?",
+        options: ["Mastering EQ and dynamics processors", "Understanding basic signal flow and mic placement", "Live sound mixing techniques", "Designing surround sound systems"],
         correct: 1,
-        explanation: "The FOH engineer controls the sound that the audience hears during a live performance."
+        explanation: "MP100 focuses on understanding basic signal flow, mic placement, and developing the foundation necessary for entry-level engineering positions."
     },
     {
-        question: "What is the purpose of an AUX send in a mixing console?",
-        options: ["Routing audio to monitors or effects processors", "Boosting the bass frequencies", "Increasing the signal gain", "Reducing latency"],
-        correct: 0,
-        explanation: "An AUX send is used to route audio to monitors or external effects processors such as reverb or delay units."
-    },
-    {
-        question: "What does dBFS stand for in digital audio?",
-        options: ["Decibels Full Scale", "Decibels Frequency Spectrum", "Dynamic Bass Frequency System", "Digital Bandwidth Frequency Shift"],
-        correct: 0,
-        explanation: "dBFS stands for Decibels Full Scale, a measure of amplitude in digital audio."
-    },
-    {
-        question: "Which microphone polar pattern picks up sound equally from all directions?",
-        options: ["Cardioid", "Figure-8", "Omnidirectional", "Hypercardioid"],
-        correct: 2,
-        explanation: "Omnidirectional microphones pick up sound equally from all directions."
-    },
-    {
-        question: "What is the purpose of an internship during the CRAS program?",
-        options: ["To gain practical industry experience", "To prepare final projects", "To work as a live sound engineer", "To learn how to use microphones"],
-        correct: 0,
-        explanation: "The internship offers students the opportunity to gain practical experience in a real-world audio industry setting."
-    },
-    {
-        question: "What is gain staging in audio production?",
-        options: ["Balancing input levels to avoid distortion", "Setting the correct levels for an amplifier", "Adding gain to increase volume", "Removing noise from the signal"],
-        correct: 0,
-        explanation: "Gain staging refers to adjusting input levels at various stages of the audio signal chain to avoid distortion and optimize headroom."
-    },
-    {
-        question: "What type of microphone is typically used for recording a kick drum?",
-        options: ["Condenser", "Ribbon", "Dynamic", "Lavalier"],
-        correct: 2,
-        explanation: "Dynamic microphones are commonly used for kick drums because they handle high SPLs and provide a tight low-end response."
-    },
-    {
-        question: "What does RT60 measure in acoustics?",
-        options: ["Reverberation decay time", "The frequency range of a room", "The loudness of a sound", "The speed of sound in a room"],
-        correct: 0,
-        explanation: "RT60 measures the time it takes for reverberation to decay by 60 dB."
-    },
-    {
-        question: "What is the difference between balanced and unbalanced cables?",
-        options: ["Balanced cables reduce noise by using two conductors, while unbalanced cables use one", "Unbalanced cables are always better for long distances", "Balanced cables increase volume", "Unbalanced cables only work with dynamic microphones"],
-        correct: 0,
-        explanation: "Balanced cables reduce noise by using two conductors and a ground wire, while unbalanced cables use one conductor and a ground."
-    },
-    {
-        question: "What is a common sampling rate used in professional audio recording?",
-        options: ["16 kHz", "44.1 kHz", "32 kHz", "22.05 kHz"],
+        question: "Which of the following software is used for video game audio in the Multimedia Technologies course?",
+        options: ["Pro Tools", "Audiokinetic Wwise", "Logic Pro", "Ableton Live"],
         correct: 1,
-        explanation: "44.1 kHz is a common sampling rate used in professional audio recording."
+        explanation: "Audiokinetic Wwise is the software used for video game audio and sound design in the Multimedia Technologies course."
     },
     {
-        question: "Which software is typically used to edit and mix audio in the CRAS program?",
-        options: ["Pro Tools", "Logic Pro", "Cubase", "Ableton Live"],
-        correct: 0,
-        explanation: "Pro Tools is the primary DAW used for editing and mixing in the CRAS program."
-    },
-    {
-        question: "Which frequency range is associated with bass in audio production?",
-        options: ["20 Hz to 200 Hz", "200 Hz to 2 kHz", "2 kHz to 10 kHz", "10 kHz to 20 kHz"],
-        correct: 0,
-        explanation: "Bass frequencies typically range from 20 Hz to 200 Hz."
-    },
-    {
-        question: "What is the function of EQ in audio production?",
-        options: ["Boosts signal strength", "Adds reverb to vocals", "Controls the frequency balance of the signal", "Increases the stereo width"],
+        question: "What type of microphone is most sensitive and used in studio recordings?",
+        options: ["Dynamic", "Ribbon", "Condenser", "Lavalier"],
         correct: 2,
-        explanation: "EQ controls the frequency balance of an audio signal by boosting or cutting specific frequency ranges."
+        explanation: "Condenser microphones are highly sensitive and are widely used in studio recordings for their accurate sound reproduction."
+    },
+    {
+        question: "What is the primary purpose of a high-pass filter?",
+        options: ["To remove high frequencies", "To remove low frequencies", "To boost midrange frequencies", "To create an echo effect"],
+        correct: 1,
+        explanation: "A high-pass filter removes low frequencies from the signal, allowing the higher frequencies to pass through."
+    },
+    {
+        question: "What does the SSL 4000 console's VCA fader control?",
+        options: ["Volume of multiple channels", "EQ settings", "Aux sends", "Phase inversion"],
+        correct: 0,
+        explanation: "The VCA (Voltage Controlled Amplifier) fader controls the volume of multiple channels that are assigned to it."
+    },
+    {
+        question: "What is the main focus of the Audio Business (AB100) course?",
+        options: ["Mixing techniques", "Copyright law, contracts, and music industry practices", "Creating live sound setups", "Mastering software skills"],
+        correct: 1,
+        explanation: "AB100 focuses on topics like copyright law, contracts, and understanding how the music industry works."
+    },
+    {
+        question: "What is latency in audio production?",
+        options: ["The delay between input and output in a digital system", "The phase shift between two microphones", "The time it takes to apply reverb", "The frequency boost applied to vocals"],
+        correct: 0,
+        explanation: "Latency is the delay between when an audio signal is input and when it is heard or output, especially in digital systems."
+    },
+    {
+        question: "What does an EQ do in audio mixing?",
+        options: ["Increases the overall signal strength", "Reduces the dynamics", "Adjusts the balance of frequencies", "Adds delay to the signal"],
+        correct: 2,
+        explanation: "An EQ (Equalizer) adjusts the balance of different frequency components within an audio signal."
+    },
+    {
+        question: "What is the role of the 'Producer' in a recording session, introduced in MP300?",
+        options: ["To manage signal flow", "To oversee the creative process and guide the recording", "To set up microphones", "To balance the mix in post-production"],
+        correct: 1,
+        explanation: "A producer oversees the creative and logistical aspects of a recording session, ensuring the artistic vision is realized."
+    },
+    {
+        question: "What is the primary role of the monitor engineer in live sound?",
+        options: ["Mixing the sound for the audience", "Controlling the sound on stage for the performers", "Managing the lighting system", "Mixing the audio for live television"],
+        correct: 1,
+        explanation: "The monitor engineer ensures that performers hear themselves and other instruments clearly through the on-stage monitors."
+    },
+    {
+        question: "What does the term 'gain staging' refer to in audio production?",
+        options: ["Adjusting the EQ across the signal path", "Balancing signal levels at each stage to avoid distortion", "Adding gain to the signal at the final stage", "Setting the pan controls for stereo effect"],
+        correct: 1,
+        explanation: "Gain staging involves balancing the signal levels at different stages of the signal path to avoid distortion and maintain a clean signal."
+    },
+    {
+        question: "What does the 'Post Production' phase involve, covered in MP200?",
+        options: ["Recording final takes", "Editing, mixing, and adding effects to the audio for film, television, or commercials", "Mastering the audio for final distribution", "Synchronizing audio with MIDI tracks"],
+        correct: 1,
+        explanation: "Post production involves editing, mixing, and adding effects to audio for film, television, or commercials."
+    },
+    {
+        question: "What is the purpose of a compressor in audio production?",
+        options: ["To increase the volume", "To reduce the dynamic range of a signal", "To boost low frequencies", "To add reverb"],
+        correct: 1,
+        explanation: "A compressor reduces the dynamic range of a signal, making quieter sounds louder and louder sounds quieter."
+    },
+    {
+        question: "What is the Pro Tools certification path taught at CRAS?",
+        options: ["Tier 1-3", "Tier 1-6", "Tier 1-8", "Tier 1-4"],
+        correct: 1,
+        explanation: "The Pro Tools certification path taught at CRAS includes Tiers 1-6, covering various levels of Pro Tools proficiency."
+    },
+    {
+        question: "Which console is commonly used in CRAS live sound training?",
+        options: ["Avid S6", "Behringer X32", "Midas M32", "Yamaha CL5"],
+        correct: 2,
+        explanation: "The Midas M32 console is commonly used for digital live sound training in CRAS."
+    },
+    {
+        question: "What is the main focus of the LS200 course at CRAS?",
+        options: ["Large-scale live sound setup, wireless microphones, and in-ear monitoring", "Digital audio mixing for games", "Post production sound editing", "Mastering and final mixdowns"],
+        correct: 0,
+        explanation: "LS200 focuses on large-scale live sound setups, wireless microphones, in-ear monitoring, and digital mixing console configuration."
+    },
+    {
+        question: "What does 'Surround Sound' in the Multimedia Technologies course focus on?",
+        options: ["Mixing stereo sound for TV", "Encoding and decoding audio for video games and Blu-Ray", "Configuring a PA system for concerts", "Recording with a mono microphone"],
+        correct: 1,
+        explanation: "The surround sound section of Multimedia Technologies focuses on encoding and decoding audio for video games, Blu-Ray, and other formats."
+    },
+    {
+        question: "What is the purpose of mastering in the music production process?",
+        options: ["To adjust individual instrument levels", "To finalize the audio for distribution", "To balance the live sound mix", "To apply reverb and delay"],
+        correct: 1,
+        explanation: "Mastering is the final step in music production, ensuring that the audio is balanced and optimized for distribution across various platforms."
+    },
+    {
+        question: "What does an audio limiter do?",
+        options: ["Increases the gain of the signal", "Prevents the signal from exceeding a set threshold", "Adds dynamic range to the mix", "Boosts the low frequencies"],
+        correct: 1,
+        explanation: "An audio limiter prevents the signal from exceeding a set threshold, thereby avoiding distortion or clipping."
     }
-    // Add additional questions up to 50 here if needed.
 ];
+</script>
 
-let score = 0;
-let currentScenarioIndex = 0;
-let overallTimer;
-let overallTimeLeft = 180; // 3 minutes for the whole game
 
-// Start the game
-function startGame() {
-    score = 0;
-    currentScenarioIndex = 0;
-    overallTimeLeft = 180;  // Reset the overall timer
-    document.getElementById("score").innerText = `Score: ${score}`;
-    document.getElementById("start-button").style.display = "none"; // Hide start button after the game starts
+        let score = 0;
+        let currentScenarioIndex = 0;
+        let overallTimer;
+        let overallTimeLeft = 180; // 3 minutes for the whole game
 
-    shuffleScenarios(); // Shuffle the questions order
-    startOverallTimer();
-    nextScenario();
-}
+        // Start the game
+        function startGame() {
+            score = 0;
+            currentScenarioIndex = 0;
+            overallTimeLeft = 180;  // Reset the overall timer
+            document.getElementById("score").innerText = `Score: ${score}`;
+            document.getElementById("start-button").style.display = "none"; // Hide start button after the game starts
 
-// Shuffle the scenarios array
-function shuffleScenarios() {
-    for (let i = scenarios.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [scenarios[i], scenarios[j]] = [scenarios[j], scenarios[i]];
-    }
-}
-
-// Generate a new scenario
-function nextScenario() {
-    // Hide the "Next" button
-    document.getElementById("next-button").style.display = "none";
-
-    // Check if the game is over
-    if (currentScenarioIndex >= scenarios.length) {
-        alert("Game over! Your final score is " + score);
-        return;
-    }
-
-    // Update question counter
-    document.getElementById("question-counter").innerText = `Question ${currentScenarioIndex + 1}/50`;
-
-    const scenario = scenarios[currentScenarioIndex];
-    document.getElementById("question").innerText = scenario.question;
-    const choicesDiv = document.getElementById("choices");
-    choicesDiv.innerHTML = ""; // Clear old choices
-    document.getElementById("explanation").style.display = "none"; // Hide previous explanation
-
-    // Create buttons for each option
-    scenario.options.forEach((option, index) => {
-        const button = document.createElement("button");
-        button.innerText = option;
-        button.onclick = () => checkAnswer(index);
-        choicesDiv.appendChild(button);
-    });
-}
-
-// Check if the selected answer is correct
-function checkAnswer(selectedIndex) {
-    const scenario = scenarios[currentScenarioIndex];
-
-    // Disable answer buttons after selection
-    const buttons = document.querySelectorAll('#choices button');
-    buttons.forEach(button => button.disabled = true);
-
-    const explanationElement = document.getElementById("explanation");
-    if (selectedIndex === scenario.correct) {
-        explanationElement.innerHTML = `<strong>Correct!</strong> ${scenario.explanation}`;
-        score += 10;
-    } else {
-        explanationElement.innerHTML = `<strong>Wrong!</strong> ${scenario.explanation}`;
-        score -= 5;
-    }
-
-    document.getElementById("score").innerText = `Score: ${score}`;
-    explanationElement.style.display = "block";  // Show the explanation
-    document.getElementById("next-button").style.display = "block";  // Show "Next" button
-
-    currentScenarioIndex++;
-}
-
-// Start the overall game timer (3 minutes total)
-function startOverallTimer() {
-    const overallTimerBar = document.getElementById("overall-timer-bar");
-
-    clearInterval(overallTimer);
-    overallTimer = setInterval(() => {
-        const progressPercentage = (overallTimeLeft / 180) * 100;
-        overallTimerBar.style.width = progressPercentage + "%";  // Update progress bar width
-
-        if (overallTimeLeft <= 0) {
-            clearInterval(overallTimer);  // Stop the timer
-            alert("Time's up for the entire game!");
-            return;
+            shuffleScenarios(); // Shuffle the questions order
+            startOverallTimer();
+            nextScenario();
         }
-        overallTimeLeft -= 1;  // Decrease the time left
-    }, 1000);
-}
+
+        // Shuffle the scenarios array
+        function shuffleScenarios() {
+            for (let i = scenarios.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [scenarios[i], scenarios[j]] = [scenarios[j], scenarios[i]];
+            }
+        }
+
+        // Generate a new scenario
+        function nextScenario() {
+            // Hide the "Next" button
+            document.getElementById("next-button").style.display = "none";
+
+            // Check if the game is over
+            if (currentScenarioIndex >= scenarios.length) {
+                alert("Game over! Your final score is " + score);
+                return;
+            }
+
+            // Update question counter
+            document.getElementById("question-counter").innerText = `Question ${currentScenarioIndex + 1}/50`;
+
+            const scenario = scenarios[currentScenarioIndex];
+            document.getElementById("question").innerText = scenario.question;
+            const choicesDiv = document.getElementById("choices");
+            choicesDiv.innerHTML = ""; // Clear old choices
+            document.getElementById("explanation").style.display = "none"; // Hide previous explanation
+
+            // Create buttons for each option
+            scenario.options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                button.onclick = () => checkAnswer(index);
+                choicesDiv.appendChild(button);
+            });
+        }
+
+        // Check if the selected answer is correct
+        function checkAnswer(selectedIndex) {
+            const scenario = scenarios[currentScenarioIndex];
+
+            // Disable answer buttons after selection
+            const buttons = document.querySelectorAll('#choices button');
+            buttons.forEach(button => button.disabled = true);
+
+            const explanationElement = document.getElementById("explanation");
+            if (selectedIndex === scenario.correct) {
+                explanationElement.innerHTML = `<strong>Correct!</strong> ${scenario.explanation}`;
+                score += 10;
+            } else {
+                explanationElement.innerHTML = `<strong>Wrong!</strong> ${scenario.explanation}`;
+                score -= 5;
+            }
+
+            document.getElementById("score").innerText = `Score: ${score}`;
+            explanationElement.style.display = "block";  // Show the explanation
+            document.getElementById("next-button").style.display = "block";  // Show "Next" button
+
+            currentScenarioIndex++;
+        }
+
+        // Start the overall game timer (3 minutes total)
+        function startOverallTimer() {
+            const overallTimerBar = document.getElementById("overall-timer-bar");
+
+            clearInterval(overallTimer);
+            overallTimer = setInterval(() => {
+                const progressPercentage = (overallTimeLeft / 180) * 100;
+                overallTimerBar.style.width = progressPercentage + "%";  // Update progress bar width
+
+                if (overallTimeLeft <= 0) {
+                    clearInterval(overallTimer);  // Stop the timer
+                    alert("Time's up for the entire game!");
+                    return;
+                }
+                overallTimeLeft -= 1;  // Decrease the time left
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
